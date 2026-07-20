@@ -26,9 +26,20 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        $user = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+            $tenant = \App\Models\Tenant::create([
+                'name' => $validated['name'] . ' Workspace',
+            ]);
 
-        event(new Registered($user = User::create($validated)));
+            return User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+                'tenant_id' => $tenant->id,
+            ]);
+        });
+
+        event(new Registered($user));
 
         Auth::login($user);
 
