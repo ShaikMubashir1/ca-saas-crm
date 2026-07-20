@@ -1,8 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Tasks\Index;
-use App\Http\Livewire\Tasks\Create;
-use App\Http\Livewire\Tasks\Show;
+use App\Livewire\Tasks\Index;
+use App\Livewire\Tasks\Create;
+use App\Livewire\Tasks\Show;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tasks', Index::class)->name('tasks.index');

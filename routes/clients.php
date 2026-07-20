@@ -1,8 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Clients\Index;
-use App\Http\Livewire\Clients\Create;
-use App\Http\Livewire\Clients\Show;
+use App\Livewire\Clients\Index;
+use App\Livewire\Clients\Create;
+use App\Livewire\Clients\Show;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/clients', Index::class)->name('clients.index');
