@@ -1,6 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Documents\Upload;
+use App\Livewire\Documents\Upload;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Upload a document for a specific client

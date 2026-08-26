@@ -20,6 +20,10 @@ trait BelongsToTenant
                     $model->tenant_id = Session::get('tenant_id');
                 } elseif (Auth::check() && Auth::user()->tenant_id) {
                     $model->tenant_id = Auth::user()->tenant_id;
+                } else {
+                    throw new \RuntimeException(
+                        'Cannot determine tenant_id. Ensure the authenticated user has a tenant assigned or tenant_id is set in the session.'
+                    );
                 }
             }
         });

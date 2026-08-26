@@ -32,7 +32,15 @@ class Client extends Model {
         return $this->hasMany(TimelineEvent::class);
     }
 
+    public function documents() {
+        return $this->hasMany(Document::class);
+    }
+
     public function notes() {
         return $this->morphMany(Note::class, 'notable');
+    }
+
+    public function tasks() {
+        return $this->hasMany(Task::class);
     }
 }

@@ -9,14 +9,37 @@ class Task extends Model {
     use HasFactory, BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'client_id', 'assigned_to', 'title', 'service_type', 
-        'status', 'priority', 'due_date', 'description'
+        'tenant_id', 'client_id', 'assigned_to', 'title', 'service_type',
+        'status', 'priority', 'due_date', 'description', 'completed_at', 'created_by'
     ];
 
     protected function casts(): array {
         return [
             'due_date' => 'date',
+            'completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Determine if the task is overdue.
+     * A task is overdue if due_date has passed and it is not completed.
+     */
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->due_date
+            && $this->due_date->isPast()
+            && $this->status !== 'completed';
+    }
+
+    /**
+     * Get the effective display status (auto-detects overdue).
+     */
+    public function getDisplayStatusAttribute(): string
+    {
+        if ($this->is_overdue) {
+            return 'overdue';
+        }
+        return $this->status;
     }
 
     public function client() {
@@ -25,5 +48,9 @@ class Task extends Model {
 
     public function assignee() {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function creator() {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
