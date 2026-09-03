@@ -23,7 +23,8 @@ class Index extends Component
 
     public function getDocumentsProperty()
     {
-        return Document::where('client_id', $this->clientId)
+        return Document::where('tenant_id', Auth::user()->tenant_id)
+            ->where('client_id', $this->clientId)
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->orderByDesc('created_at')
             ->paginate(10);

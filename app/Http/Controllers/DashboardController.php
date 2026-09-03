@@ -6,67 +6,77 @@ use App\Models\Client;
 use App\Models\Task;
 use App\Models\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $totalClients = Client::count();
-        $pendingTasks = Task::where('status', 'pending')->count();
-        $completedThisMonth = Task::where('status', 'completed')
-            ->whereMonth('completed_at', now()->month)
-            ->whereYear('completed_at', now()->year)
-            ->count();
-        $totalDocuments = Document::count();
+        $tenantId = Auth::user()->tenant_id;
 
-        // Recent activity aggregation (latest clients, tasks, documents)
-        $recentClients = Client::latest()->take(3)->get()->map(function ($client) {
-            return [
-                'type' => 'client',
-                'title' => "Client {$client->name} was added",
-                'subtitle' => $client->entity_type,
-                'url' => route('clients.show', $client->id),
-                'created_at' => $client->created_at,
-            ];
-        });
+        // Client metrics
+        $totalClients = Client::where('tenant_id', $tenantId)->count();
+        $activeClients = Client::where('tenant_id', $tenantId)->whereHas('services')->count();
 
-        $recentTasks = Task::with('client')->latest()->take(4)->get()->map(function ($task) {
-            return [
-                'type' => 'task',
-                'title' => "Task '{$task->title}' " . ($task->status === 'completed' ? 'was completed' : 'was created'),
-                'subtitle' => $task->client ? "Client: {$task->client->name}" : null,
-                'url' => route('tasks.show', $task->id),
-                'created_at' => $task->updated_at ?? $task->created_at,
-            ];
-        });
+        // Task metrics
+        $pendingTasks = Task::where('tenant_id', $tenantId)->where('status', 'pending')->count();
+        $myTasks = Task::where('tenant_id', $tenantId)->where('assigned_to', Auth::id())->where('status', '!=', 'completed')->count();
+        $overdueTasks = Task::where('tenant_id', $tenantId)->where('status', '!=', 'completed')->where('due_date', '<', date('Y-m-d'))->count();
 
-        $recentDocs = Document::with('client')->latest()->take(3)->get()->map(function ($doc) {
-            return [
-                'type' => 'document',
-                'title' => "Document '{$doc->name}' uploaded",
-                'subtitle' => $doc->client ? "Client: {$doc->client->name}" : null,
-                'url' => route('clients.show', $doc->client_id),
-                'created_at' => $doc->created_at,
-            ];
-        });
+        // Compliance metrics
+        $complianceInstances = \App\Models\ComplianceInstance::where('tenant_id', $tenantId)->get();
+        $compMetrics = [
+            'due_today' => $complianceInstances->filter(fn($i) => $i->due_date && $i->due_date->isToday() && !in_array($i->status->value, ['filed', 'acknowledged', 'cancelled']))->count(),
+            'due_7_days' => $complianceInstances->filter(fn($i) => $i->due_date && $i->due_date->diffInDays(now()) <= 7 && !in_array($i->status->value, ['filed', 'acknowledged', 'cancelled']))->count(),
+            'overdue' => $complianceInstances->where('status', \App\Enums\ComplianceStatus::OVERDUE)->count(),
+            'filed' => $complianceInstances->whereIn('status', [\App\Enums\ComplianceStatus::FILED, \App\Enums\ComplianceStatus::ACKNOWLEDGED])->count(),
+        ];
 
-        $activities = $recentClients->concat($recentTasks)->concat($recentDocs)
-            ->sortByDesc('created_at')
-            ->take(6);
+        // Document metrics
+        $totalDocuments = Document::where('tenant_id', $tenantId)->count();
+        $pendingDocRequests = \App\Models\DocumentRequest::where('tenant_id', $tenantId)->where('status', 'sent')->count();
 
-        $upcomingTasks = Task::with('client')
-            ->where('status', '!=', 'completed')
+        // Billing metrics
+        $invoices = \App\Models\Invoice::where('tenant_id', $tenantId)->get();
+        $payments = \App\Models\Payment::where('tenant_id', $tenantId)->get();
+        $billingMetrics = [
+            'total_invoiced' => $invoices->sum('total_amount'),
+            'total_paid' => $payments->where('status', \App\Enums\PaymentStatus::COMPLETED)->sum('amount'),
+            'outstanding' => $invoices->where('status', '!=', \App\Enums\InvoiceStatus::CANCELLED)->sum('balance_due'),
+            'overdue' => $invoices->where('status', \App\Enums\InvoiceStatus::OVERDUE)->sum('balance_due'),
+        ];
+
+        // WhatsApp metrics
+        $openConversations = \App\Models\WhatsAppConversation::where('tenant_id', $tenantId)->where('status', \App\Enums\WhatsAppConversationStatus::OPEN)->count();
+
+        // Upcoming compliance list
+        $upcomingCompliance = \App\Models\ComplianceInstance::where('tenant_id', $tenantId)
+            ->with(['client', 'template'])
+            ->whereNotIn('status', [\App\Enums\ComplianceStatus::FILED, \App\Enums\ComplianceStatus::ACKNOWLEDGED, \App\Enums\ComplianceStatus::CANCELLED])
             ->orderBy('due_date', 'asc')
             ->take(5)
             ->get();
 
+        // Recent Timeline activities
+        $activities = \App\Models\TimelineEvent::where('tenant_id', $tenantId)
+            ->with('client')
+            ->latest()
+            ->take(6)
+            ->get();
+
         return view('dashboard', [
             'totalClients' => $totalClients,
+            'activeClients' => $activeClients,
             'pendingTasks' => $pendingTasks,
-            'completedThisMonth' => $completedThisMonth,
+            'myTasks' => $myTasks,
+            'overdueTasks' => $overdueTasks,
+            'compMetrics' => $compMetrics,
             'totalDocuments' => $totalDocuments,
+            'pendingDocRequests' => $pendingDocRequests,
+            'billingMetrics' => $billingMetrics,
+            'openConversations' => $openConversations,
+            'upcomingCompliance' => $upcomingCompliance,
             'activities' => $activities,
-            'upcomingTasks' => $upcomingTasks,
         ]);
     }
 }

@@ -33,6 +33,30 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')" wire:navigate>
+                        {{ __('Clients') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('documents.index')" :active="request()->routeIs('documents.*')" wire:navigate>
+                        {{ __('Document Vault') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('communication.templates')" :active="request()->routeIs('communication.*')" wire:navigate>
+                        {{ __('Templates') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')" wire:navigate>
+                        {{ __('Invoices') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('compliance.dashboard')" :active="request()->routeIs('compliance.*')" wire:navigate>
+                        {{ __('Compliance') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('whatsapp.inbox')" :active="request()->routeIs('whatsapp.*')" wire:navigate>
+                        {{ __('WhatsApp') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')" wire:navigate>
+                        {{ __('Reports') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('settings.firm')" :active="request()->routeIs('settings.*')" wire:navigate>
+                        {{ __('Settings') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -83,6 +107,24 @@ new class extends Component
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')" wire:navigate>
+                {{ __('Clients') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')" wire:navigate>
+                {{ __('Tasks') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('documents.index')" :active="request()->routeIs('documents.*')" wire:navigate>
+                {{ __('Document Vault') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')" wire:navigate>
+                {{ __('Invoices') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('compliance.dashboard')" :active="request()->routeIs('compliance.*')" wire:navigate>
+                {{ __('Compliance') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('whatsapp.inbox')" :active="request()->routeIs('whatsapp.*')" wire:navigate>
+                {{ __('WhatsApp') }}
             </x-responsive-nav-link>
         </div>
 

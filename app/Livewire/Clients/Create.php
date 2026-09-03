@@ -11,6 +11,7 @@ class Create extends Component
 {
     public string $name = '';
     public string $entity_type = 'Individual';
+    public string $client_type = 'individual';
     public string $email = '';
     public string $phone = '';
     public string $pan = '';
@@ -25,6 +26,7 @@ class Create extends Component
         return [
             'name' => 'required|string|max:255',
             'entity_type' => 'required|in:Individual,Proprietorship,Partnership Firm,LLP,Private Limited Company,Public Limited Company,HUF,Trust',
+            'client_type' => 'required|string|in:individual,salaried,proprietor,partnership_firm,company,gst_business,tds_deductor,audit_client',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'pan' => ['nullable', 'string', 'regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i'],

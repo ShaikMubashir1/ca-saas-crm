@@ -9,8 +9,8 @@ class Task extends Model {
     use HasFactory, BelongsToTenant;
 
     protected $fillable = [
-        'tenant_id', 'client_id', 'assigned_to', 'title', 'service_type',
-        'status', 'priority', 'due_date', 'description', 'completed_at', 'created_by'
+        'tenant_id', 'client_id', 'compliance_instance_id', 'financial_year_id', 'assigned_to', 'reviewer_id',
+        'title', 'service_type', 'status', 'priority', 'due_date', 'description', 'completed_at', 'created_by'
     ];
 
     protected function casts(): array {
@@ -46,8 +46,20 @@ class Task extends Model {
         return $this->belongsTo(Client::class);
     }
 
+    public function complianceInstance() {
+        return $this->belongsTo(ComplianceInstance::class);
+    }
+
+    public function financialYear() {
+        return $this->belongsTo(FinancialYear::class);
+    }
+
     public function assignee() {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function reviewer() {
+        return $this->belongsTo(User::class, 'reviewer_id');
     }
 
     public function creator() {

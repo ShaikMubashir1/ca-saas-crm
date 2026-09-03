@@ -53,4 +53,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class, 'assigned_to');
     }
+
+    public function communications()
+    {
+        return $this->hasMany(Communication::class);
+    }
+
+    public function createdInvoices()
+    {
+        return $this->hasMany(Invoice::class, 'created_by');
+    }
+
+    public function receivedPayments()
+    {
+        return $this->hasMany(Payment::class, 'received_by');
+    }
 }

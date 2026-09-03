@@ -39,6 +39,17 @@
                     @error('entity_type') <span class="text-[#ED1C24] text-[11px] mt-1 block font-medium">{{ $message }}</span> @enderror
                 </div>
 
+                <!-- Client Type -->
+                <div>
+                    <label for="client_type" class="block text-xs font-bold text-[#252525]">Client Classification / Workflow Type <span class="text-[#ED1C24]">*</span></label>
+                    <select wire:model="client_type" id="client_type" required class="mt-1 block w-full rounded-lg border-[#E5E5E5] bg-[#F7F7F8] py-2 px-3 text-xs text-[#252525] focus:border-[#ED1C24] focus:ring-1 focus:ring-[#ED1C24] focus:bg-white transition-all">
+                        @foreach(\App\Enums\ClientType::cases() as $type)
+                            <option value="{{ $type->value }}">{{ $type->label() }}</option>
+                        @endforeach
+                    </select>
+                    @error('client_type') <span class="text-[#ED1C24] text-[11px] mt-1 block font-medium">{{ $message }}</span> @enderror
+                </div>
+
                 <!-- Email -->
                 <div>
                     <label for="email" class="block text-xs font-bold text-[#252525]">Email Address</label>
